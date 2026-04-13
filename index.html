@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vault — Portfolio Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── LOADER ───────────────────────────────── -->
+<div class="loader" id="loader">
+  <div class="loader-inner">
+    <div class="loader-logo">V</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+  </div>
+</div>
+
+<!-- ── LOGIN SCREEN ─────────────────────────── -->
+<div id="login-screen">
+  <!-- Infinite Grid Background: dual-layer, mouse-reveal, scrolling -->
+  <div class="grid-bg" id="grid-bg">
+    <!-- Layer 1: dim base grid, always visible at low opacity -->
+    <svg class="grid-layer grid-base" id="grid-base-svg">
+      <defs>
+        <pattern id="grid-pattern-base" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid-pattern-base)"/>
+    </svg>
+    <!-- Layer 2: bright grid revealed only under mouse via CSS mask -->
+    <svg class="grid-layer grid-reveal" id="grid-reveal-svg">
+      <defs>
+        <pattern id="grid-pattern-reveal" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid-pattern-reveal)"/>
+    </svg>
+    <!-- Glow orbs matching the React component -->
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+  </div>
+
+  <!-- Sign In Card -->
+  <div class="signin-wrap">
+    <div class="signin-card" id="signin-card">
+      <!-- Traveling border lights -->
+      <div class="card-border-anim">
+        <div class="border-light border-top"></div>
+        <div class="border-light border-right"></div>
+        <div class="border-light border-bottom"></div>
+        <div class="border-light border-left"></div>
+      </div>
+
+      <div class="signin-header">
+        <div class="signin-logo">V</div>
+        <h1 class="signin-title">Welcome back</h1>
+        <p class="signin-sub">Sign in to your Vault account</p>
+      </div>
+
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-login" onclick="setTab('login')">Sign In</button>
+        <button class="tab-btn" id="tab-signup" onclick="setTab('signup')">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="login-form" class="auth-form">
+        <div class="field-wrap">
+          <div class="field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <input class="field-input" type="email" id="login-email" placeholder="Email address" value="demo@vaultapp.io">
+        </div>
+        <div class="field-wrap">
+          <div class="field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <input class="field-input" type="password" id="login-pass" placeholder="Password" value="demo123">
+          <button class="field-toggle" type="button" onclick="togglePass('login-pass', this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="field-row">
+          <label class="check-wrap">
+            <input type="checkbox" id="remember">
+            <span class="check-box"></span>
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="link-subtle">Forgot password?</a>
+        </div>
+        <button class="btn-signin" id="login-btn" onclick="doLogin()">
+          <span>Sign In</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <div class="divider"><span>or</span></div>
+        <button class="btn-google">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <p class="signup-link">Don't have an account? <a href="#" onclick="setTab('signup')">Sign up</a></p>
+        <p class="demo-hint">Demo credentials pre-filled — just click Sign In</p>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="signup-form" class="auth-form" style="display:none">
+        <div class="field-wrap">
+          <div class="field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <input class="field-input" type="text" id="signup-name" placeholder="Full name">
+        </div>
+        <div class="field-wrap">
+          <div class="field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <input class="field-input" type="email" id="signup-email" placeholder="Email address">
+        </div>
+        <div class="field-wrap">
+          <div class="field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <input class="field-input" type="password" id="signup-pass" placeholder="Create password">
+        </div>
+        <button class="btn-signin" id="signup-btn" onclick="doSignup()">
+          <span>Create Account</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <p class="signup-link">Already have an account? <a href="#" onclick="setTab('login')">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAV ──────────────────────────────────── -->
+<nav class="nav" id="nav">
+  <div class="nav-brand" onclick="navigate('dashboard')">
+    <div class="brand-mark">V</div>
+    <span class="brand-name">Vault</span>
+  </div>
+
+  <!-- Sliding pill nav -->
+  <ul class="nav-pills" id="nav-pills">
+    <li class="pill-item" data-screen="dashboard" onclick="navigate('dashboard')">Dashboard</li>
+    <li class="pill-item" data-screen="add" onclick="navigate('add')">Add Investment</li>
+    <li class="pill-item" data-screen="transactions" onclick="navigate('transactions')">Transactions</li>
+    <li class="pill-item" data-screen="analytics" onclick="navigate('analytics')">Analytics</li>
+    <li class="pill-item" data-screen="goals" onclick="navigate('goals')">Goals</li>
+    <div class="pill-cursor" id="pill-cursor"></div>
+  </ul>
+
+  <div class="nav-right">
+    <span class="nav-username" id="nav-username-display"></span>
+    <div class="nav-avatar" id="nav-user-name" title="Logout" onclick="doLogout()">V</div>
+  </div>
+</nav>
+
+<!-- ── APP ──────────────────────────────────── -->
+<div id="app">
+  <div class="page-content">
+
+    <!-- DASHBOARD -->
+    <div class="screen" id="dashboard-screen">
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow" id="dash-greeting">Good morning</p>
+          <h1 class="page-title">Portfolio Overview</h1>
+        </div>
+        <button class="btn-primary" onclick="navigate('add')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Investment
+        </button>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-main">
+          <div class="kpi-label">Total Portfolio Value</div>
+          <div class="kpi-value" id="total-value">₹0</div>
+          <div class="kpi-sub">Current Market Value</div>
+          <div class="kpi-chart-line"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Invested</div>
+          <div class="kpi-value" id="total-invested">₹0</div>
+          <div class="kpi-sub">Capital Deployed</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Profit / Loss</div>
+          <div class="kpi-value" id="total-pnl">₹0</div>
+          <div class="kpi-sub" id="pnl-pct">+0.00%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Holdings</div>
+          <div class="kpi-value" id="holding-count">0</div>
+          <div class="kpi-sub">Active Positions</div>
+        </div>
+      </div>
+
+      <!-- Meta stats -->
+      <div class="meta-row">
+        <div class="meta-card">
+          <div class="meta-label">Best Performer</div>
+          <div class="meta-val" id="best-performer">—</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Risk Level</div>
+          <div class="meta-val"><span class="badge" id="risk-label-dash">—</span></div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Today</div>
+          <div class="meta-val mono" id="today-date">—</div>
+        </div>
+      </div>
+
+      <!-- Holdings Grid -->
+      <div class="section-head">
+        <h2 class="section-title">Holdings</h2>
+        <button class="btn-ghost" onclick="navigate('analytics')">View Analytics</button>
+      </div>
+      <div class="asset-grid" id="asset-grid"></div>
+    </div>
+
+    <!-- ADD INVESTMENT -->
+    <div class="screen" id="add-screen">
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">New Position</p>
+          <h1 class="page-title">Add Investment</h1>
+        </div>
+      </div>
+
+      <div class="add-layout">
+        <div class="form-card">
+          <div class="form-section-label">Asset Class</div>
+          <div class="asset-type-grid" id="asset-type-grid">
+            <button type="button" class="type-btn selected" data-type="gold">Gold</button>
+            <button type="button" class="type-btn" data-type="silver">Silver</button>
+            <button type="button" class="type-btn" data-type="stocks">Equities</button>
+            <button type="button" class="type-btn" data-type="mf">Mutual Funds</button>
+            <button type="button" class="type-btn" data-type="fd">Fixed Deposit</button>
+            <button type="button" class="type-btn" data-type="copper">Copper</button>
+            <button type="button" class="type-btn" data-type="oil">Crude Oil</button>
+            <button type="button" class="type-btn" data-type="wheat">Wheat</button>
+            <button type="button" class="type-btn" data-type="crypto">Crypto</button>
+            <button type="button" class="type-btn" data-type="beer">Beer</button>
+          </div>
+
+          <div class="form-section-label" style="margin-top:2rem">Investment Details</div>
+          <form id="add-investment-form-el" onsubmit="return false;">
+            <div class="field-wrap">
+              <input class="field-input" type="text" id="inv-name" placeholder="Investment name (e.g. Gold Holdings, NIFTY ETF)">
+            </div>
+            <div class="form-row-2">
+              <div class="field-wrap">
+                <input class="field-input" type="number" id="inv-amount" placeholder="Amount invested (₹)" min="1">
+              </div>
+              <div class="field-wrap">
+                <input class="field-input" type="number" id="inv-units" placeholder="Units / Quantity" min="0.001" step="0.001">
+              </div>
+            </div>
+            <div class="field-wrap">
+              <input class="field-input" type="date" id="inv-date">
+            </div>
+            <button type="submit" class="btn-primary btn-full" onclick="submitInvestment()">
+              Add Investment
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </form>
+        </div>
+
+        <div class="add-side">
+          <div class="info-card">
+            <h3>Asset Classes</h3>
+            <div class="asset-info-list" id="asset-info-list">
+              <div class="asset-info-item">
+                <div class="asset-dot" style="background:#F5A623"></div>
+                <div>
+                  <div class="asset-info-name">Gold</div>
+                  <div class="asset-info-desc">Store of value, inflation hedge</div>
+                </div>
+              </div>
+              <div class="asset-info-item">
+                <div class="asset-dot" style="background:#52B788"></div>
+                <div>
+                  <div class="asset-info-name">Equities</div>
+                  <div class="asset-info-desc">High growth, market risk</div>
+                </div>
+              </div>
+              <div class="asset-info-item">
+                <div class="asset-dot" style="background:#80B918"></div>
+                <div>
+                  <div class="asset-info-name">Mutual Funds</div>
+                  <div class="asset-info-desc">Diversified, professionally managed</div>
+                </div>
+              </div>
+              <div class="asset-info-item">
+                <div class="asset-dot" style="background:#457B9D"></div>
+                <div>
+                  <div class="asset-info-name">Fixed Deposit</div>
+                  <div class="asset-info-desc">Low risk, guaranteed returns</div>
+                </div>
+              </div>
+              <div class="asset-info-item">
+                <div class="asset-dot" style="background:#9B5DE5"></div>
+                <div>
+                  <div class="asset-info-name">Crypto</div>
+                  <div class="asset-info-desc">High volatility, speculative</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="screen" id="transactions-screen">
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">History</p>
+          <h1 class="page-title">Transactions</h1>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head">
+          <span>Date / Asset</span>
+          <span>Type</span>
+          <span>Units</span>
+          <span>Price</span>
+          <span>Total</span>
+        </div>
+        <div id="tx-body"></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="screen" id="analytics-screen">
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">Insights</p>
+          <h1 class="page-title">Analytics</h1>
+        </div>
+      </div>
+
+      <div class="analytics-top">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>Portfolio Allocation</h3>
+          </div>
+          <div class="pie-wrap">
+            <canvas id="pie-canvas" width="180" height="180"></canvas>
+            <div class="pie-legend" id="pie-legend"></div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>Risk Assessment</h3>
+          </div>
+          <div class="risk-wrap">
+            <div class="risk-score-big" id="risk-score-num">—</div>
+            <div class="risk-label-big" id="risk-score-label">Calculating...</div>
+            <div class="risk-track">
+              <div class="risk-fill" id="risk-fill"></div>
+              <div class="risk-thumb" id="risk-indicator"></div>
+            </div>
+            <div class="risk-scale">
+              <span>Low</span><span>Medium</span><span>High</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:1.5rem">
+        <div class="chart-card-header">
+          <h3>Allocation Breakdown</h3>
+        </div>
+        <div id="alloc-bars"></div>
+      </div>
+
+      <div class="section-head">
+        <h2 class="section-title">Recommendations</h2>
+      </div>
+      <div class="rec-grid" id="recommendations"></div>
+    </div>
+
+    <!-- GOALS -->
+    <div class="screen" id="goals-screen">
+      <div class="page-header">
+        <div>
+          <p class="page-eyebrow">Planning</p>
+          <h1 class="page-title">Goals</h1>
+        </div>
+        <button class="btn-primary" onclick="openAddGoalModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Goal
+        </button>
+      </div>
+      <div id="goals-container"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function() {
+  const today = new Date();
+  const el = document.getElementById('today-date');
+  if (el) el.textContent = today.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+
+  const dateInput = document.getElementById('inv-date');
+  if (dateInput) dateInput.value = today.toISOString().split('T')[0];
+
+  const hr = today.getHours();
+  const greetEl = document.getElementById('dash-greeting');
+  if (greetEl) greetEl.textContent = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+
+  AppState.load();
+  initLogin();
+  initNavPills();
+  initGridBg();
+
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 400); }
+  }, 1000);
+
+  if (AppState.user) {
+    document.getElementById('login-screen').style.display = 'none';
+    const av = document.getElementById('nav-user-name');
+    if (av) av.textContent = AppState.user.name.charAt(0).toUpperCase();
+    const nd = document.getElementById('nav-username-display');
+    if (nd) nd.textContent = AppState.user.name;
+    document.getElementById('nav').classList.add('visible');
+    document.getElementById('app').classList.add('visible');
+    navigate('dashboard');
+  }
+})();
+
+function initGridBg() {
+  const bg        = document.getElementById('grid-bg');
+  const patBase   = document.getElementById('grid-pattern-base');
+  const patReveal = document.getElementById('grid-pattern-reveal');
+  const revealSvg = document.getElementById('grid-reveal-svg');
+  if (!bg || !patBase || !patReveal || !revealSvg) return;
+
+  // Scroll both grid layers in sync (speed 0.5 matching React component)
+  let ox = 0, oy = 0;
+  function animateGrid() {
+    ox = (ox + 0.5) % 40;
+    oy = (oy + 0.5) % 40;
+    patBase.setAttribute('x', ox);
+    patBase.setAttribute('y', oy);
+    patReveal.setAttribute('x', ox);
+    patReveal.setAttribute('y', oy);
+    requestAnimationFrame(animateGrid);
+  }
+  animateGrid();
+
+  // Mouse move: update CSS mask on reveal layer — 300px radial gradient
+  // Matches: maskImage = `radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black, transparent)`
+  bg.addEventListener('mousemove', (e) => {
+    const rect = bg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const mask = `radial-gradient(300px circle at ${x}px ${y}px, black, transparent)`;
+    revealSvg.style.webkitMaskImage = mask;
+    revealSvg.style.maskImage = mask;
+  });
+
+  // Hide reveal layer when mouse leaves
+  bg.addEventListener('mouseleave', () => {
+    revealSvg.style.webkitMaskImage = 'none';
+    revealSvg.style.maskImage = 'none';
+  });
+}
+
+function initNavPills() {
+  const items = document.querySelectorAll('.pill-item');
+  const cursor = document.getElementById('pill-cursor');
+  items.forEach(item => {
+    item.addEventListener('mouseenter', () => {
+      const { width, left } = item.getBoundingClientRect();
+      const parent = item.closest('ul').getBoundingClientRect();
+      cursor.style.width = width + 'px';
+      cursor.style.left = (left - parent.left) + 'px';
+      cursor.style.opacity = '1';
+    });
+  });
+  document.getElementById('nav-pills').addEventListener('mouseleave', () => {
+    cursor.style.opacity = '0';
+  });
+}
+
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  btn.style.opacity = isPass ? '1' : '0.5';
+}
+</script>
+</body>
+</html>
